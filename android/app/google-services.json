@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "290440860872",
+    "project_id": "flames-6541b",
+    "storage_bucket": "flames-6541b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:290440860872:android:4f60adc3eb44852dad41fd",
+        "android_client_info": {
+          "package_name": "com.flames"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAliui8c4Eticb4pcQiPcXk14C3Uf-xHZE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
