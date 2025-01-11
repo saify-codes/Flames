@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import {Props} from '../types/screens/signup';
 import Auth from '../services/firebase/firebaseAuthService';
-import FirestoreService from '../services/firebase/firebaseStoreService';
 
 export default function SignUpScreen({navigation}: Props) {
   const [formState, setFormState] = useState({
@@ -75,7 +74,7 @@ export default function SignUpScreen({navigation}: Props) {
       <View className="w-full mb-4">
         <Text className="text-lg text-gray-700 mb-2">Email</Text>
         <TextInput
-          className="h-12 p-4 bg-white border border-gray-300 rounded-lg shadow-sm"
+          className="p-4 text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm"
           placeholder="Enter your email"
           keyboardType="email-address"
           value={formState.email}
@@ -92,7 +91,7 @@ export default function SignUpScreen({navigation}: Props) {
       <View className="w-full mb-4">
         <Text className="text-lg text-gray-700 mb-2">Password</Text>
         <TextInput
-          className="h-12 p-4 bg-white border border-gray-300 rounded-lg shadow-sm"
+          className="p-4 text-gray-900 bg-white border border-gray-300 rounded-lg shadow-sm"
           placeholder="Enter your password"
           secureTextEntry
           value={formState.password}
