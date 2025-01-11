@@ -1,5 +1,5 @@
 import auth, { CallbackOrObserver, FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { Credentials, Provider } from './firebaseAuthService.d';
+import type { Credentials, Provider, User } from '../../types/services/firebase';
 
 export default class Auth {
 
@@ -12,12 +12,21 @@ export default class Auth {
         switch (provider) {
             case 'credentials':
                 const { email, password } = credentials
+                const response: any = { message: null, error: false, user: null }
 
                 return auth().signInWithEmailAndPassword(email, password)
-                    .then(() => null)
+                    .then(({ user }: FirebaseAuthTypes.UserCredential) => {
+                        response.user = user
+                        response.message = 'account logged in'
+                        return response
+                    })
                     .catch((error: any) => {
-                        if (error.code == 'auth/invalid-credential') return 'invalid email or password'
-                        return 'something went wrong'
+
+                        response.error = true
+                        response.message = 'something went wrong'
+
+                        if (error.code == 'auth/invalid-credential') response.message = 'invalid email or password'
+                        return response
                     })
 
             default:
@@ -34,14 +43,22 @@ export default class Auth {
         switch (provider) {
             case 'credentials':
                 const { email, password } = credentials
+                const response: any = { message: null, error: false, user: null }
 
                 return auth().createUserWithEmailAndPassword(email, password)
-                    .then(() => null)
+                    .then(({ user }: FirebaseAuthTypes.UserCredential) => {
+                        response.user = user
+                        response.message = 'account created'
+                        return response
+                    })
                     .catch((error: any) => {
 
-                        if (error.code === 'auth/email-already-in-use') return 'That email address is already in use!'
-                        if (error.code === 'auth/invalid-email') return 'That email address is invalid!'
-                        return 'something went wrong'
+                        response.error = true
+                        response.message = 'something went wrong'
+
+                        if (error.code === 'auth/email-already-in-use') response.message = 'That email address is already in use!'
+                        if (error.code === 'auth/invalid-email') response.message = 'That email address is invalid!'
+                        return response
                     })
 
             default:

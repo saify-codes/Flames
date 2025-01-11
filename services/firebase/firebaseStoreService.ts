@@ -23,6 +23,19 @@ export default class FirestoreService {
         }
     }
 
+    // Add a document with a specific ID
+    async addDocumentWithId(docId: string, data: FirebaseFirestoreTypes.DocumentData): Promise<{ id: string; data: FirebaseFirestoreTypes.DocumentData }> {
+        try {
+            const docRef = firestore().collection(this.collectionName).doc(docId);
+            await docRef.set(data);  // Use .set() to specify the ID
+            return { id: docId, data };
+        } catch (error) {
+            console.error(`Error adding document with ID ${docId} to ${this.collectionName}:`, error);
+            throw error;
+        }
+    }
+
+
     // Get all documents
     async getDocuments(): Promise<Array<{ id: string; data: FirebaseFirestoreTypes.DocumentData }>> {
         try {
