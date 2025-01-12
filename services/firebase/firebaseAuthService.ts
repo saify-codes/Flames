@@ -66,6 +66,10 @@ export default class firebaseAuthService {
         }
     }
 
+    static user(){
+        return auth().currentUser
+    }
+
     static onAuthStateChanged(fn: CallbackOrObserver<FirebaseAuthTypes.AuthListenerCallback>) {
         return auth().onAuthStateChanged(fn)
     }
