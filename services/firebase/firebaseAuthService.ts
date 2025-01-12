@@ -1,7 +1,7 @@
 import auth, { CallbackOrObserver, FirebaseAuthTypes } from '@react-native-firebase/auth';
 import type { Credentials, Provider } from '../../types/services/firebase';
 
-export default class Auth {
+export default class firebaseAuthService {
 
     constructor() {
 

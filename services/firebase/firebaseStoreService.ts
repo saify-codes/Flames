@@ -1,7 +1,7 @@
 import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
 
 
-export default class FirestoreService {
+export default class firebaseStoreService {
     private collectionName: string;
 
     constructor(collectionName: string) {
@@ -9,7 +9,7 @@ export default class FirestoreService {
     }
 
     static collection(collectionName: string) {
-        return new FirestoreService(collectionName)
+        return new firebaseStoreService(collectionName)
     }
 
     // Add a new document

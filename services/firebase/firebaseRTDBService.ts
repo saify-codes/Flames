@@ -1,6 +1,6 @@
 import database, { FirebaseDatabaseTypes } from '@react-native-firebase/database';
 
-export default class RealTimeDatabaseService {
+export default class firebaseRTDBService {
     private path: string;
 
     constructor(path: string) {
@@ -8,7 +8,7 @@ export default class RealTimeDatabaseService {
     }
 
     static ref(path: string) {
-        return new RealTimeDatabaseService(path);
+        return new firebaseRTDBService(path);
     }
 
     // Add or update data at a specific path
