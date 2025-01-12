@@ -10,6 +10,7 @@ import {User} from './types/services/firebase';
 import {NavigationContainer} from '@react-navigation/native';
 
 import './global.css';
+import FullpageLoader from './components/loaders/fullpageLoader';
 
 function App(): React.JSX.Element {
   const [user, setUser] = useState<User>(null);
@@ -23,7 +24,7 @@ function App(): React.JSX.Element {
   useLayoutEffect(() => Auth.onAuthStateChanged(onAuthStateChanged), []);
 
   if (initializing) {
-    return <Text>loading...</Text>;
+    return <FullpageLoader/>
   }
 
   return (
