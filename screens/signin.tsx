@@ -87,7 +87,7 @@ export default function SignUpScreen({navigation}: Props) {
             )}
           </TouchableOpacity>
 
-          <Text className="font-semibold text-center text-gray-600">
+          <Text className="font-semibold text-center text-gray-600" onPress={()=> navigation.replace('Signup')}>
             Already have an account
           </Text>
           <Text className="font-semibold text-center text-primary mt-20">
