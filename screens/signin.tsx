@@ -13,11 +13,10 @@ import {
   Alert,
   SafeAreaView,
 } from 'react-native';
+import {withLoader} from '../utils';
 
 const ValidationSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('email is invalformDataid')
-    .required('email is required'),
+  email: Yup.string().email('email is invalid').required('email is required'),
   password: Yup.string()
     .min(8, 'password must be minimum 8 characters')
     .max(50, 'password must be maximum characters')
@@ -28,20 +27,23 @@ export default function SignUpScreen({navigation}: Props) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (formData: any) => {
-    setLoading(true);
-    const response = await Auth.login('credentials', formData);
+    const response = await withLoader(
+      setLoading,
+      Auth.login('credentials', formData),
+    );
 
     if (response.error) {
       Alert.alert(response.message);
     }
-    setLoading(false);
   };
 
   return (
     <Formik
       initialValues={{email: '', password: ''}}
       onSubmit={handleSubmit}
-      validationSchema={ValidationSchema}>
+      validationSchema={ValidationSchema}
+      validateOnChange={false}
+      validateOnBlur={false}>
       {({handleChange, handleBlur, handleSubmit, values, errors}: any) => (
         <SafeAreaView className="flex gap-10 px-5 justify-center h-screen">
           {/* Title */}
@@ -62,7 +64,7 @@ export default function SignUpScreen({navigation}: Props) {
                 onBlur={handleBlur('email')}
                 value={values.email}
                 placeholder="Email"
-                className="border-2 border-transparent focus:border-primary bg-primary-100 placeholder:text-gray-600 caret-primary font-medium rounded-lg px-3"
+                className="border-2 border-transparent focus:border-primary bg-primary-100 placeholder:text-gray-600 text-gray-600 caret-primary font-medium rounded-lg px-3"
               />
               {errors.email && (
                 <Text className="text-xs text-primary mt-2">
@@ -73,11 +75,12 @@ export default function SignUpScreen({navigation}: Props) {
 
             <View>
               <TextInput
+                secureTextEntry
                 onChangeText={handleChange('password')}
                 onBlur={handleBlur('password')}
                 value={values.password}
                 placeholder="Password"
-                className="border-2 border-transparent focus:border-primary bg-primary-100 placeholder:text-gray-600 caret-primary font-medium rounded-lg px-3"
+                className="border-2 border-transparent focus:border-primary bg-primary-100 placeholder:text-gray-600 text-gray-600 caret-primary font-medium rounded-lg px-3"
               />
               {errors.password && (
                 <Text className="text-xs text-primary mt-2">
@@ -99,7 +102,7 @@ export default function SignUpScreen({navigation}: Props) {
                 <ActivityIndicator size="small" color="#FFF" />
               ) : (
                 <Text className="text-white text-lg font-semibold">
-                  Sign Up
+                  Sign In
                 </Text>
               )}
             </TouchableOpacity>
@@ -107,12 +110,12 @@ export default function SignUpScreen({navigation}: Props) {
             <Text
               className="font-semibold text-center text-gray-600"
               onPress={() => navigation.push('Signup')}>
-              Already have an account
+              Don't have an account
             </Text>
           </View>
 
           {/* Socials logins */}
-          <View className='flex gap-5'>
+          <View className="flex gap-5">
             <Text className="font-semibold text-center text-primary">
               or continue with
             </Text>

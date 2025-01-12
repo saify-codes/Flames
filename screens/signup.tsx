@@ -1,4 +1,10 @@
+import Auth from '../services/firebase/firebaseAuthService';
+import * as Yup from 'yup';
+import Icon from '../components/Icon';
 import {useState} from 'react';
+import {Formik} from 'formik';
+import firebaseStoreService from '../services/firebase/firebaseStoreService';
+import {withLoader} from '../utils';
 import {
   View,
   Text,
@@ -8,177 +14,150 @@ import {
   Alert,
   SafeAreaView,
 } from 'react-native';
-import {Props} from '../types/screens/signup';
-import Auth from '../services/firebase/firebaseAuthService';
-import FirestoreService from '../services/firebase/firebaseStoreService';
+import type {Props} from '../types/screens/signup';
+
+const ValidationSchema = Yup.object().shape({
+  email: Yup.string().email('email is invalid').required('email is required'),
+  password: Yup.string()
+    .min(8, 'password must be minimum 8 characters')
+    .max(50, 'password must be maximum characters')
+    .required('password is required'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password')], 'passwords must match')
+    .required('confirm password is required'),
+});
 
 export default function SignUpScreen({navigation}: Props) {
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    password: '',
-    phone: '',
-    errors: {name: '', email: '', password: '', phone: ''},
-  });
-
   const [loading, setLoading] = useState(false);
 
-  const validate = () => {
-    const validationErrors: {
-      name?: string;
-      email?: string;
-      password?: string;
-      phone?: string;
-    } = {};
-
-    if (!formState.name) {
-      validationErrors.name = 'Name is required';
-    }
-
-    if (!formState.email) {
-      validationErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formState.email)) {
-      validationErrors.email = 'Invalid email address';
-    }
-
-    if (!formState.password) {
-      validationErrors.password = 'Password is required';
-    } else if (formState.password.length < 6) {
-      validationErrors.password = 'Password must be at least 6 characters';
-    }
-
-    if (!formState.phone) {
-      validationErrors.phone = 'Phone number is required';
-    } else if (!/^\d{10,15}$/.test(formState.phone)) {
-      validationErrors.phone = 'Phone number must be 10 - 15 digits';
-    }
-
-    setFormState((prevState: any) => ({
-      ...prevState,
-      errors: validationErrors,
-    }));
-
-    return Object.keys(validationErrors).length === 0;
-  };
-
-  const handleSubmit = async () => {
-    if (!validate()) {
-      return;
-    }
-
-    setLoading(true);
-    const response = await Auth.register('credentials', formState);
+  const handleSubmit = async (formData: any) => {
+    const response = await withLoader(
+      setLoading,
+      Auth.register('credentials', formData),
+    );
 
     if (!response.error) {
-      const {name, email, phone} = formState;
-      FirestoreService.collection('profiles').addDocumentWithId(
-        response.user.uid,
-        {name, email, phone},
-      );
+      firebaseStoreService
+        .collection('profiles')
+        .addDocumentWithId(response.user.uid, {
+          name: null,
+          email: formData.email,
+          phone: null,
+        });
     } else {
       Alert.alert(response.message);
     }
-    setLoading(false);
-  };
-
-  const handleChange = (field: string, value: string) => {
-    setFormState(prevState => ({
-      ...prevState,
-      [field]: value,
-    }));
   };
 
   return (
-    <SafeAreaView className="flex-1 justify-center items-center bg-gray-100 p-6">
-      <Text className="text-3xl font-bold text-gray-900 mb-6">Sign Up</Text>
+    <Formik
+      initialValues={{email: '', password: '', confirmPassword: ''}}
+      onSubmit={handleSubmit}
+      validationSchema={ValidationSchema}
+      validateOnChange={false}
+      validateOnBlur={false}>
+      {({handleChange, handleBlur, handleSubmit, values, errors}: any) => (
+        <SafeAreaView className="flex gap-10 px-5 justify-center h-screen">
+          {/* Title */}
+          <View className="flex gap-5">
+            <Text className="text-3xl font-bold text-primary text-center">
+              Create Account
+            </Text>
+            <Text className="text-lg leading-5 text-gray-800 text-center">
+              Create an account so you can explore all the existing features
+            </Text>
+          </View>
 
-      {/* Name Input */}
-      <View className="w-full mb-4">
-        <Text className="text-lg text-gray-700 mb-2">Name</Text>
-        <TextInput
-          className="px-4 bg-white border text-gray-900 border-gray-300 rounded-lg shadow-sm"
-          placeholder="Enter your name"
-          value={formState.name}
-          onChangeText={text => handleChange('name', text)}
-        />
-        {formState.errors.name && (
-          <Text className="text-red-600 text-sm mt-1">
-            {formState.errors.name}
-          </Text>
-        )}
-      </View>
+          {/* Fields */}
+          <View className="flex gap-5">
+            <View>
+              <TextInput
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                value={values.email}
+                placeholder="Email"
+                className="border-2 border-transparent focus:border-primary bg-primary-100 placeholder:text-gray-600 text-gray-600 caret-primary font-medium rounded-lg px-3"
+              />
+              {errors.email && (
+                <Text className="text-xs text-primary mt-2">
+                  {errors.email}
+                </Text>
+              )}
+            </View>
 
-      {/* Email Input */}
-      <View className="w-full mb-4">
-        <Text className="text-lg text-gray-700 mb-2">Email</Text>
-        <TextInput
-          className="p-4 bg-white border text-gray-900 border-gray-300 rounded-lg shadow-sm"
-          placeholder="Enter your email"
-          keyboardType="email-address"
-          value={formState.email}
-          onChangeText={text => handleChange('email', text)}
-        />
-        {formState.errors.email && (
-          <Text className="text-red-600 text-sm mt-1">
-            {formState.errors.email}
-          </Text>
-        )}
-      </View>
+            <View>
+              <TextInput
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+                value={values.password}
+                placeholder="Password"
+                secureTextEntry
+                className="border-2 border-transparent focus:border-primary bg-primary-100 placeholder:text-gray-600 text-gray-600 caret-primary font-medium rounded-lg px-3"
+              />
+              {errors.password && (
+                <Text className="text-xs text-primary mt-2">
+                  {errors.password}
+                </Text>
+              )}
+            </View>
 
-      {/* Password Input */}
-      <View className="w-full mb-4">
-        <Text className="text-lg text-gray-700 mb-2">Password</Text>
-        <TextInput
-          className="p-4 bg-white border text-gray-900 border-gray-300 rounded-lg shadow-sm"
-          placeholder="Enter your password"
-          secureTextEntry
-          value={formState.password}
-          onChangeText={text => handleChange('password', text)}
-        />
-        {formState.errors.password && (
-          <Text className="text-red-600 text-sm mt-1">
-            {formState.errors.password}
-          </Text>
-        )}
-      </View>
+            <View>
+              <TextInput
+                onChangeText={handleChange('confirmPassword')}
+                onBlur={handleBlur('confirmPassword')}
+                value={values.confirmPassword}
+                placeholder="Confirm Password"
+                secureTextEntry
+                className="border-2 border-transparent focus:border-primary bg-primary-100 placeholder:text-gray-600 text-gray-600 caret-primary font-medium rounded-lg px-3"
+              />
+              {errors.confirmPassword && (
+                <Text className="text-xs text-primary mt-2">
+                  {errors.confirmPassword}
+                </Text>
+              )}
+            </View>
 
-      {/* Phone Input */}
-      <View className="w-full mb-6">
-        <Text className="text-lg text-gray-700 mb-2">Phone Number</Text>
-        <TextInput
-          className="p-4 bg-white border text-gray-900 border-gray-300 rounded-lg shadow-sm"
-          placeholder="Enter your phone number"
-          keyboardType="phone-pad"
-          value={formState.phone}
-          onChangeText={text => handleChange('phone', text)}
-        />
-        {formState.errors.phone && (
-          <Text className="text-red-600 text-sm mt-1">
-            {formState.errors.phone}
-          </Text>
-        )}
-      </View>
+            <TouchableOpacity
+              onPress={handleSubmit}
+              className="w-full bg-primary p-3 rounded-lg items-center"
+              disabled={loading}
+              style={{boxShadow: '0 5 10 0 #DC143C9A'}}>
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <Text className="text-white text-lg font-semibold">
+                  Sign Up
+                </Text>
+              )}
+            </TouchableOpacity>
 
-      {/* Sign Up Button */}
-      <TouchableOpacity
-        onPress={handleSubmit}
-        className="w-full bg-blue-600 p-4 rounded-lg items-center"
-        disabled={loading}>
-        {loading ? (
-          <ActivityIndicator size="small" color="#fff" />
-        ) : (
-          <Text className="text-white text-lg font-semibold">Sign Up</Text>
-        )}
-      </TouchableOpacity>
+            <Text
+              className="font-semibold text-center text-gray-600"
+              onPress={() => navigation.pop()}>
+              Already have an account
+            </Text>
+          </View>
 
-      {/* Login Link */}
-      <TouchableOpacity
-        onPress={() => navigation.pop()}
-        className="mt-4">
-        <Text className="text-blue-600 text-lg">
-          Already have an account? Sign In
-        </Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+          {/* Socials logins */}
+          <View className="flex gap-5">
+            <Text className="font-semibold text-center text-primary">
+              or continue with
+            </Text>
+
+            <View className="flex flex-row gap-2 justify-center">
+              <TouchableOpacity className="p-4 bg-gray-300 rounded-lg">
+                <Icon icon="logo-google" size={16} />
+              </TouchableOpacity>
+              <TouchableOpacity className="p-4 bg-gray-300 rounded-lg">
+                <Icon icon="logo-facebook" size={16} />
+              </TouchableOpacity>
+              <TouchableOpacity className="p-4 bg-gray-300 rounded-lg">
+                <Icon icon="logo-github" size={16} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </SafeAreaView>
+      )}
+    </Formik>
   );
 }
