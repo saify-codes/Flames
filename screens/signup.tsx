@@ -173,7 +173,7 @@ export default function SignUpScreen({navigation}: Props) {
 
       {/* Login Link */}
       <TouchableOpacity
-        onPress={() => navigation.navigate('Signin')}
+        onPress={() => navigation.pop()}
         className="mt-4">
         <Text className="text-blue-600 text-lg">
           Already have an account? Sign In
