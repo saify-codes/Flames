@@ -1,6 +1,7 @@
 export type RootStackParamList = {
     Signin: undefined;
     Signup: undefined;
-    Dashboard: { user: object };
+    Posts: undefined;
+    Dashboard: undefined;
     Details: { id: number };
 }
