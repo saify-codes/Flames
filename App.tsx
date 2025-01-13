@@ -2,15 +2,14 @@ import React, {useLayoutEffect, useState} from 'react';
 import Auth from './services/firebase/firebaseAuthService';
 import GuestRoutes from './routes/guestRoutes';
 import AuthRoutes from './routes/authRoutes';
+import FullpageLoader from './components/loaders/fullpageLoader';
 
 import {store} from './store';
 import {Provider} from 'react-redux';
-import {Text} from 'react-native';
 import {User} from './types/services/firebase';
 import {NavigationContainer} from '@react-navigation/native';
 
 import './global.css';
-import FullpageLoader from './components/loaders/fullpageLoader';
 
 function App(): React.JSX.Element {
   const [user, setUser] = useState<User>(null);
