@@ -11,11 +11,12 @@ import {User} from './types/services/firebase';
 import {NavigationContainer} from '@react-navigation/native';
 
 import './global.css';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 
 function App(): React.JSX.Element {
-
   const [user, setUser] = useState<User>(null);
   const [initializing, setInitializing] = useState(true);
+  const queryClient = new QueryClient();
 
   function onAuthStateChanged(user: User) {
     setUser(user);
@@ -25,18 +26,19 @@ function App(): React.JSX.Element {
   useLayoutEffect(() => Auth.onAuthStateChanged(onAuthStateChanged), []);
 
   if (initializing) {
-    return <FullpageLoader/>
+    return <FullpageLoader />;
   }
 
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        {user ? <AuthRoutes /> : <GuestRoutes />}
-      </NavigationContainer>
+      <QueryClientProvider client={queryClient}>
+        <NavigationContainer>
+          {user ? <AuthRoutes /> : <GuestRoutes />}
+        </NavigationContainer>
+      </QueryClientProvider>
     </Provider>
   );
 }
 
-config()
+config();
 export default App;
-
